@@ -24,6 +24,10 @@ app.use(express.json());
 
 connectDB();
 
+app.get("/", (_req, res) => {
+  res.send("YojanaSathi Backend is Running");
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/schemes", schemeRoutes);

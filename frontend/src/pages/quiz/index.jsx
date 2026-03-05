@@ -84,12 +84,12 @@ const QuizPage = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--color-background)" }}>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 transition duration-300">
       <Header isAuthenticated={!!user} user={user} onLogout={handleLogout} />
       <div className="main-content-offset" />
 
       <main className="min-h-[calc(100vh-76px)] flex items-center justify-center px-4 py-6">
-        <div className="w-full max-w-5xl min-h-[calc(100vh-120px)] rounded-3xl border bg-white p-6 md:p-10 shadow-sm flex flex-col">
+        <div className="w-full max-w-5xl min-h-[calc(100vh-120px)] rounded-2xl border border-blue-100 bg-white/90 p-8 md:p-10 shadow-lg backdrop-blur-sm transition duration-300 flex flex-col">
           <div>
             <div className="flex items-center justify-between gap-3 mb-3">
               <p className="text-sm md:text-base font-semibold text-slate-700">
@@ -97,9 +97,9 @@ const QuizPage = () => {
               </p>
               <p className="text-sm font-medium text-slate-500">{progress}% complete</p>
             </div>
-            <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+            <div className="w-full h-2 rounded-full bg-blue-100 overflow-hidden">
               <div
-                className="h-full bg-blue-700 rounded-full transition-all duration-300 ease-in-out"
+                className="h-2 bg-blue-500 rounded-full transition-all duration-300 ease-in-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -115,7 +115,7 @@ const QuizPage = () => {
                 transition={{ duration: 0.3, ease: "easeInOut" }}
                 className="w-full flex flex-col items-center transition duration-300 ease-in-out"
               >
-                <h1 className="text-3xl md:text-4xl font-bold text-center text-slate-900 mb-8 max-w-3xl">
+                <h1 className="text-4xl md:text-5xl font-bold text-center text-slate-900 mb-8 max-w-3xl leading-tight">
                   {currentQuestion.label}
                 </h1>
 
@@ -125,7 +125,7 @@ const QuizPage = () => {
                     value={selectedAnswer}
                     onChange={(event) => updateAnswer(event.target.value)}
                     placeholder={currentQuestion.placeholder}
-                    className="w-full max-w-xl border border-slate-300 rounded-xl px-4 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    className="w-full max-w-xl p-4 text-lg rounded-xl border border-slate-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
                   />
                 )}
 
