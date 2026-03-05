@@ -27,3 +27,7 @@ vite.config.*.timestamp*
 
 # misc
 *.local
+
+node_modules
+.env
+dist

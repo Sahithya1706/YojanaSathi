@@ -1,13 +1,14 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const path = require("path");
 
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/userRoutes");
+const schemeRoutes = require("./routes/schemeRoutes");
+const quizRoutes = require("./routes/quizRoutes");
 
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config();
 
 const maskMongoUri = (uri) => {
   if (!uri) return uri;
@@ -25,6 +26,8 @@ connectDB();
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/schemes", schemeRoutes);
+app.use("/api/quiz", quizRoutes);
 
 const PORT = Number(process.env.PORT) || 5000;
 app.listen(PORT, () => {
