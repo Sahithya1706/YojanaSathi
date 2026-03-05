@@ -56,9 +56,9 @@ const getPasswordStrength = (password) => {
   if (!password) return { score: 0, label: "", color: "" };
   let score = 0;
   if (password?.length >= 8) score++;
-  if (/[A-Z]/?.test(password)) score++;
-  if (/[0-9]/?.test(password)) score++;
-  if (/[^A-Za-z0-9]/?.test(password)) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
   if (score <= 1) return { score, label: "Weak", color: "bg-red-500" };
   if (score === 2) return { score, label: "Fair", color: "bg-yellow-500" };
   if (score === 3) return { score, label: "Good", color: "bg-blue-500" };
@@ -95,9 +95,9 @@ const RegistrationForm = () => {
 
     if (!formData?.email?.trim() && !formData?.phone?.trim()) {
       newErrors.email = "Email or phone number is required";
-    } else if (formData?.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/?.test(formData?.email)) {
+    } else if (formData?.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData?.email)) {
       newErrors.email = "Enter a valid email address";
-    } else if (formData?.phone && !/^[6-9]\d{9}$/?.test(formData?.phone)) {
+    } else if (formData?.phone && !/^[6-9]\d{9}$/.test(formData?.phone)) {
       newErrors.phone = "Enter a valid 10-digit Indian mobile number";
     }
 
@@ -122,13 +122,8 @@ const RegistrationForm = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e?.target;
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
-    if (errors?.[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
-
-  const handleSelectChange = (name, value) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors?.[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 

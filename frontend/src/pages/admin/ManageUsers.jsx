@@ -42,7 +42,7 @@ const ManageUsers = () => {
 
   const handleToggleBan = async (user) => {
     try {
-      const updatedUser = await toggleUserBan(user?._id, !Boolean(user?.banned));
+      const updatedUser = await toggleUserBan(user?._id, !user?.banned);
       setUsers((prevUsers) =>
         prevUsers.map((item) => (item?._id === updatedUser?._id ? updatedUser : item))
       );

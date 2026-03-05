@@ -6,7 +6,7 @@ import Button from "components/ui/Button";
 const CTABannerSection = ({ lang }) => {
   const content = {
     en: {
-      heading: "Don\'t Miss Out on Benefits You Deserve",
+      heading: "Don't Miss Out on Benefits You Deserve",
       subheading: "Over ₹2 lakh crore in government benefits go unclaimed every year because citizens don't know they're eligible. Start your free quiz today.",
       cta1: "Start Free Quiz",
       cta2: "Create Account",

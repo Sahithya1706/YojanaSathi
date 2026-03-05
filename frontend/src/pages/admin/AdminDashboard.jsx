@@ -728,11 +728,11 @@ const AdminDashboard = () => {
 
   const handleToggleBan = async (user) => {
     try {
-      const updatedUser = await toggleUserBan(user?._id, !Boolean(user?.banned));
+      const updatedUser = await toggleUserBan(user?._id, !user?.banned);
       setUsers((prev) =>
         prev.map((item) => (String(item?._id) === String(updatedUser?._id) ? updatedUser : item))
       );
-      appendAuditLog("admin.user.ban.toggle", `user:${user?._id}:${!Boolean(user?.banned)}`);
+      appendAuditLog("admin.user.ban.toggle", `user:${user?._id}:${!user?.banned}`);
     } catch (error) {
       setUsersError(error?.response?.data?.message || error?.message || "Unable to update ban status.");
     }

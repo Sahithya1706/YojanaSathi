@@ -10,7 +10,7 @@ const FeaturesSection = ({ lang }) => {
         { icon: "Languages", title: "Multilingual Support", desc: "Available in English, Hindi, and Marathi. Switch languages instantly for a comfortable experience.", color: "#1E40AF" },
         { icon: "Zap", title: "Instant Results", desc: "Get matched schemes in under 2 minutes. No paperwork, no waiting, no middlemen required.", color: "#EA580C" },
         { icon: "ShieldCheck", title: "Government Verified", desc: "All schemes are sourced directly from official government portals with verified information.", color: "#059669" },
-        { icon: "BookmarkCheck", title: "Save & Track", desc: "Bookmark schemes you\'re interested in and track your applications from your personal dashboard.", color: "#7C3AED" },
+        { icon: "BookmarkCheck", title: "Save & Track", desc: "Bookmark schemes you're interested in and track your applications from your personal dashboard.", color: "#7C3AED" },
         { icon: "FileText", title: "Document Checklist", desc: "Know exactly which documents you need before visiting any government office or portal.", color: "#D97706" },
         { icon: "ExternalLink", title: "Direct Apply Links", desc: "One-click redirect to official government portals to apply directly without any intermediary.", color: "#0891B2" },
       ],

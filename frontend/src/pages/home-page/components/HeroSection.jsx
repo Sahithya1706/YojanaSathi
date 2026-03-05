@@ -2,12 +2,12 @@ import React from "react";
 import Icon from "components/AppIcon";
 import Button from "components/ui/Button";
 
-const HeroSection = ({ t, lang, onStartQuiz, onViewSchemes, onCheckEligibility }) => {
+const HeroSection = ({ lang, onStartQuiz, onViewSchemes, onCheckEligibility }) => {
   const content = {
     en: {
       badge: "Government of India Verified Platform",
       title: "Discover Government Schemes",
-      titleHighlight: "You\'re Eligible For",
+      titleHighlight: "You're Eligible For",
       subtitle: "Answer 6 simple questions and instantly find all central & state government schemes tailored to your profile — in your language.",
       cta: "Start Eligibility Quiz",
       secondary: "View All Schemes",

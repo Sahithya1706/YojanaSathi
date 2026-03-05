@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 const STORAGE_KEY = "appLanguage";
 const SUPPORTED_LANGUAGES = ["en", "hi", "mr"];
@@ -265,11 +265,14 @@ export const LanguageProvider = ({ children }) => {
     localStorage.setItem(STORAGE_KEY, language);
   }, [language]);
 
-  const t = (key) => translations?.[language]?.[key] || translations.en[key] || key;
+  const t = useCallback(
+    (key) => translations?.[language]?.[key] || translations.en[key] || key,
+    [language]
+  );
 
   const value = useMemo(
     () => ({ language, setLanguage, t, translations }),
-    [language]
+    [language, t]
   );
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;

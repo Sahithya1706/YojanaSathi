@@ -17,7 +17,7 @@ const useCountUp = (target, duration = 2000, start = false) => {
   return count;
 };
 
-const StatCard = ({ icon, value, rawValue, label, color, suffix, start }) => {
+const StatCard = ({ icon, rawValue, label, suffix, start }) => {
   const count = useCountUp(rawValue, 2000, start);
   const display = rawValue >= 100000
     ? count?.toLocaleString("en-IN")

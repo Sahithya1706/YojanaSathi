@@ -180,8 +180,8 @@ export function explainEligibility(userProfile = {}, scheme = {}) {
         : "",
     }),
     buildCheck({
-      isActive: Boolean(scheme?.requiresStudent),
-      passed: Boolean(scheme?.requiresStudent) ? profile.isStudent : true,
+      isActive: scheme?.requiresStudent,
+      passed: scheme?.requiresStudent ? profile.isStudent : true,
       weight: 8,
       eligibleReason: scheme?.requiresStudent
         ? "You indicated that you are currently a student."
@@ -194,8 +194,8 @@ export function explainEligibility(userProfile = {}, scheme = {}) {
         : "",
     }),
     buildCheck({
-      isActive: Boolean(scheme?.requiresLandOwnership),
-      passed: Boolean(scheme?.requiresLandOwnership) ? profile.hasLand : true,
+      isActive: scheme?.requiresLandOwnership,
+      passed: scheme?.requiresLandOwnership ? profile.hasLand : true,
       weight: 7,
       eligibleReason: scheme?.requiresLandOwnership
         ? "You indicated land ownership required by this scheme."

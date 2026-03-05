@@ -20,6 +20,7 @@ const QUESTIONS = [
 ];
 
 const pretty = (value) => String(value || "").replaceAll("_", " ");
+const MotionDiv = motion.div;
 
 const QuizPage = () => {
   const navigate = useNavigate();
@@ -107,7 +108,7 @@ const QuizPage = () => {
 
           <div className="flex-1 flex flex-col justify-center py-6">
             <AnimatePresence mode="wait">
-              <motion.div
+              <MotionDiv
                 key={currentQuestion.id}
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -150,7 +151,7 @@ const QuizPage = () => {
                     })}
                   </div>
                 )}
-              </motion.div>
+              </MotionDiv>
             </AnimatePresence>
           </div>
 
