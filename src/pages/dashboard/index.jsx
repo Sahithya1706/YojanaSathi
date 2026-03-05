@@ -1,169 +1,324 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from "components/ui/Header";
 import Icon from "components/AppIcon";
 import Button from "components/ui/Button";
+import AppFooter from "components/ui/AppFooter";
 import WelcomeBanner from "./components/WelcomeBanner";
 import SavedSchemesSection from "./components/SavedSchemesSection";
 import QuizHistorySection from "./components/QuizHistorySection";
 import ProfileSection from "./components/ProfileSection";
 import StatsBar from "./components/StatsBar";
+import { useLanguage } from "context/LanguageContext";
+import { getCurrentUser, logout } from "utils/auth";
 
-const MOCK_SAVED_SCHEMES = [
-  {
-    id: "s1",
-    name: "PM Kisan Samman Nidhi Yojana",
-    category: "Agriculture",
-    ministry: "Ministry of Agriculture & Farmers Welfare",
-    benefit: "₹6,000/year",
-    portalUrl: "https://pmkisan.gov.in",
-  },
-  {
-    id: "s2",
-    name: "Pradhan Mantri Fasal Bima Yojana",
-    category: "Agriculture",
-    ministry: "Ministry of Agriculture & Farmers Welfare",
-    benefit: "Up to ₹2,00,000",
-    portalUrl: "https://pmfby.gov.in",
-  },
-  {
-    id: "s3",
-    name: "Mahatma Gandhi NREGA",
-    category: "Employment",
-    ministry: "Ministry of Rural Development",
-    benefit: "₹267/day",
-    portalUrl: "https://nrega.nic.in",
-  },
-  {
-    id: "s4",
-    name: "Ayushman Bharat PM-JAY",
-    category: "Health",
-    ministry: "Ministry of Health & Family Welfare",
-    benefit: "₹5,00,000/year",
-    portalUrl: "https://pmjay.gov.in",
-  },
-];
-
-const MOCK_QUIZ_HISTORY = [
-  {
-    id: 3,
-    date: "2026-03-03T18:30:00",
-    matchedSchemes: 8,
-    age: 45,
-    occupation: "Farmer",
-    income: "Below ₹1,00,000",
-    state: "Maharashtra",
-  },
-  {
-    id: 2,
-    date: "2026-02-15T10:15:00",
-    matchedSchemes: 6,
-    age: 45,
-    occupation: "Farmer",
-    income: "Below ₹1,00,000",
-    state: "Maharashtra",
-  },
-  {
-    id: 1,
-    date: "2026-01-20T14:45:00",
-    matchedSchemes: 5,
-    age: 44,
-    occupation: "Farmer",
-    income: "Below ₹1,00,000",
-    state: "Maharashtra",
-  },
-];
-
-// ─── Tab config ───────────────────────────────────────────────────────────────
 const TABS = [
-  { id: "saved", label: "Saved Schemes", icon: "BookmarkCheck" },
-  { id: "history", label: "Quiz History", icon: "ClipboardList" },
-  { id: "profile", label: "My Profile", icon: "User" },
+  { id: "saved", labelKey: "dashboard.savedSchemes", icon: "BookmarkCheck" },
+  { id: "history", labelKey: "dashboard.quizHistory", icon: "ClipboardList" },
+  { id: "profile", labelKey: "dashboard.myProfile", icon: "User" },
 ];
 
-// ─── Dashboard Page ───────────────────────────────────────────────────────────
-const Dashboard = () => {
+const formatAnswerLabel = (key) => {
+  if (!key) return "";
+  return key
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (value) => value.toUpperCase());
+};
+
+const Dashboard = ({ initialTab = "saved" }) => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("saved");
+  const location = useLocation();
+  const { t } = useLanguage();
+
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [user, setUser] = useState(null);
+  const [savedSchemes, setSavedSchemes] = useState([]);
+  const [recommendedSchemes, setRecommendedSchemes] = useState([]);
+  const [quizHistory, setQuizHistory] = useState([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const storedUser = getCurrentUser();
+    const storedSavedSchemes = JSON.parse(localStorage.getItem("savedSchemes") || "[]");
+    const storedRecommendedSchemes = JSON.parse(localStorage.getItem("recommendedSchemes") || "[]");
+    const storedQuizHistory = JSON.parse(localStorage.getItem("quizHistory") || "[]");
+    const recentQuizResult = JSON.parse(localStorage.getItem("recentQuizResult") || "null");
+
     if (storedUser) {
       setUser(storedUser);
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+    }
+
+    setSavedSchemes(Array.isArray(storedSavedSchemes) ? storedSavedSchemes : []);
+    setRecommendedSchemes(Array.isArray(storedRecommendedSchemes) ? storedRecommendedSchemes : []);
+
+    if (Array.isArray(storedQuizHistory) && storedQuizHistory.length > 0) {
+      setQuizHistory(storedQuizHistory);
+    } else if (recentQuizResult) {
+      setQuizHistory([recentQuizResult]);
+    } else {
+      setQuizHistory([]);
     }
   }, []);
 
-  const [savedSchemes, setSavedSchemes] = useState([]);
-  const [quizHistory, setQuizHistory] = useState([]);
-  const [isAuthenticated] = useState(true);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("saved") === "true") {
+      setActiveTab("saved");
+      return;
+    }
+    setActiveTab(initialTab);
+  }, [initialTab, location.search]);
 
-  const handleStartQuiz = () => {
-    navigate("/home-page");
+  const recentQuiz = useMemo(() => (quizHistory?.length > 0 ? quizHistory[0] : null), [quizHistory]);
 
-    setTimeout(() => {
-      const quizSection = document.getElementById("quiz");
-      if (quizSection) {
-        quizSection.scrollIntoView({ behavior: "smooth" });
-      }
-    }, 100);
+  const handleStartQuiz = () => navigate("/quiz");
+  const handleViewDetails = (scheme) =>
+    navigate(`/scheme/${scheme?.id}`, { state: { scheme } });
+
+  const handleSaveRecommendedScheme = (scheme) => {
+    const existingSaved = JSON.parse(localStorage.getItem("savedSchemes") || "[]");
+    const alreadySaved = existingSaved.some((item) => item?.id === scheme?.id || item?.name === scheme?.name);
+    if (alreadySaved) return;
+
+    const savedItem = {
+      id: scheme?.id || `saved-${Date.now()}`,
+      name: scheme?.name || "",
+      category: scheme?.category || "General",
+      ministry: scheme?.ministry || "",
+      benefit: scheme?.benefit || "",
+      portalUrl: scheme?.portalUrl || "",
+      recommendationReason: scheme?.reason || scheme?.recommendationReason || "",
+      savedAt: new Date().toISOString(),
+    };
+
+    const updated = [savedItem, ...existingSaved];
+    localStorage.setItem("savedSchemes", JSON.stringify(updated));
+    setSavedSchemes(updated);
   };
-  const handleViewDetails = (schemeId) => {
-    // Navigate to scheme details — route not generated here
-    navigate("/home-page");
+
+  const handleApplyScheme = (scheme) => {
+    if (scheme?.portalUrl) {
+      window.open(scheme.portalUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+    window.alert("Visit your nearest CSC center to apply.");
   };
 
   const handleRemoveBookmark = (schemeId) => {
-    setSavedSchemes((prev) => prev?.filter((s) => s?.id !== schemeId));
-    setUser((prev) => ({ ...prev, savedCount: Math.max(0, prev?.savedCount - 1) }));
+    setSavedSchemes((prev) => {
+      const updated = prev?.filter((s) => s?.id !== schemeId);
+      localStorage.setItem("savedSchemes", JSON.stringify(updated));
+      return updated;
+    });
   };
 
-  const handleRetakeQuiz = () => navigate("/home-page");
-  const handleViewResults = () => navigate("/home-page");
+  const handleRetakeQuiz = () => navigate("/quiz");
+  const handleViewResults = () => setActiveTab("history");
 
   const handleUpdateProfile = (data) => {
-    setUser((prev) => ({ ...prev, ...data }));
+    setUser((prev) => {
+      const updatedUser = { ...prev, ...data };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+       const users = JSON.parse(localStorage.getItem("users") || "[]");
+       const updatedUsers = users.map((item) =>
+         String(item?.email || "").toLowerCase() === String(updatedUser?.email || "").toLowerCase()
+           ? { ...item, ...updatedUser }
+           : item
+       );
+       localStorage.setItem("users", JSON.stringify(updatedUsers));
+
+      return updatedUser;
+    });
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    logout();
     setShowLogoutConfirm(false);
-    navigate("/home-page");
+    navigate("/");
   };
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ background: "var(--color-background)" }}
-    >
-      {/* Header */}
+    <div className="min-h-screen" style={{ background: "var(--color-background)" }}>
       <Header
         isAuthenticated={isAuthenticated}
         user={user}
         onLogout={() => setShowLogoutConfirm(true)}
       />
-      {/* Tricolor offset */}
+
       <div className="main-content-offset" />
-      {/* Main */}
+
       <main id="main-content" className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8">
-        {/* Welcome Banner */}
         <section aria-label="Welcome banner" className="mb-6">
           <WelcomeBanner
             user={{
               ...(user || {}),
               savedCount: savedSchemes?.length,
               quizCount: quizHistory?.length,
-            }} onStartQuiz={handleStartQuiz}
+            }}
+            onStartQuiz={handleStartQuiz}
           />
         </section>
 
-        {/* Stats Bar */}
         <section aria-label="Platform statistics" className="mb-6 md:mb-8">
           <StatsBar />
         </section>
 
-        {/* Tab Navigation */}
+        <section aria-label="Recent quiz results" className="mb-6">
+          <div
+            className="rounded-2xl p-5 md:p-6"
+            style={{
+              background: "var(--color-card)",
+              border: "1px solid var(--color-border)",
+              boxShadow: "var(--shadow-sm)",
+            }}
+          >
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <h2
+                className="text-base md:text-lg font-semibold"
+                style={{ fontFamily: "Poppins, sans-serif", color: "var(--color-text-primary)" }}
+              >
+                Recent Quiz Result
+              </h2>
+              <Button variant="outline" size="sm" onClick={() => setActiveTab("history")}>
+                My Quizzes
+              </Button>
+            </div>
+
+            {recentQuiz ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div
+                  className="rounded-xl p-4"
+                  style={{ background: "var(--color-muted)", border: "1px solid var(--color-border)" }}
+                >
+                  <p className="text-xs mb-2" style={{ color: "var(--color-text-secondary)" }}>
+                    Quiz date: {new Date(recentQuiz?.date)?.toLocaleString()}
+                  </p>
+                  <p className="text-sm font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>
+                    User answers
+                  </p>
+                  <div className="text-xs space-y-1" style={{ color: "var(--color-text-secondary)" }}>
+                    {Object.entries(recentQuiz?.answers || {}).slice(0, 6).map(([key, value]) => (
+                      <p key={`recent-${key}`}>
+                        <span style={{ color: "var(--color-text-primary)", fontWeight: 600 }}>
+                          {formatAnswerLabel(key)}:
+                        </span>{" "}
+                        {String(value)}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+
+                <div
+                  className="rounded-xl p-4"
+                  style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}
+                >
+                  <p className="text-sm font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>
+                    Matched schemes ({recentQuiz?.matchedSchemes || 0})
+                  </p>
+                  {recentQuiz?.matchedSchemeNames?.length > 0 ? (
+                    <ul className="list-disc pl-4 space-y-1 text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                      {recentQuiz?.matchedSchemeNames?.map((name) => (
+                        <li key={`recent-scheme-${name}`}>{name}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                      No matched schemes recorded for this attempt.
+                    </p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
+                No quiz results yet. Take a quiz to see matched schemes here.
+              </p>
+            )}
+          </div>
+        </section>
+
+        <section aria-label="AI recommended schemes" className="mb-6">
+          <div
+            className="rounded-2xl p-5 md:p-6"
+            style={{
+              background: "var(--color-card)",
+              border: "1px solid var(--color-border)",
+              boxShadow: "var(--shadow-sm)",
+            }}
+          >
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <h2
+                className="text-base md:text-lg font-semibold"
+                style={{ fontFamily: "Poppins, sans-serif", color: "var(--color-text-primary)" }}
+              >
+                AI Recommended Schemes
+              </h2>
+              <Button variant="outline" size="sm" onClick={handleStartQuiz}>
+                Refresh via Quiz
+              </Button>
+            </div>
+
+            {recommendedSchemes?.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {recommendedSchemes.slice(0, 6).map((scheme) => (
+                  <div
+                    key={`rec-${scheme?.id || scheme?.name}`}
+                    className="rounded-xl border p-4"
+                    style={{ borderColor: "var(--color-border)", background: "#F8FAFC" }}
+                  >
+                    <p className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                      {scheme?.name}
+                    </p>
+                    {scheme?.benefit && (
+                      <p className="text-xs mt-1" style={{ color: "var(--color-text-secondary)" }}>
+                        {scheme.benefit}
+                      </p>
+                    )}
+                    {scheme?.recommendationReason && (
+                      <p className="text-xs mt-2" style={{ color: "#334155" }}>
+                        {scheme.recommendationReason}
+                      </p>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-3"
+                      onClick={() => handleSaveRecommendedScheme(scheme)}
+                    >
+                      Save Scheme
+                    </Button>
+                    <div className="mt-2 flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => handleViewDetails(scheme)}
+                      >
+                        View Details
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => handleApplyScheme(scheme)}
+                      >
+                        Apply
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
+                No AI recommendations yet. Complete the quiz to get personalized scheme recommendations.
+              </p>
+            )}
+          </div>
+        </section>
+
         <div
           className="rounded-2xl overflow-hidden"
           style={{
@@ -172,7 +327,6 @@ const Dashboard = () => {
             boxShadow: "var(--shadow-md)",
           }}
         >
-          {/* Tabs */}
           <div
             className="flex overflow-x-auto border-b"
             style={{ borderColor: "var(--color-border)" }}
@@ -189,14 +343,9 @@ const Dashboard = () => {
                 className="flex items-center gap-2 px-4 md:px-6 py-4 text-sm font-medium whitespace-nowrap transition-all duration-200 flex-shrink-0 border-b-2"
                 style={{
                   fontFamily: "Poppins, sans-serif",
-                  borderBottomColor:
-                    activeTab === tab?.id ? "var(--color-primary)" : "transparent",
-                  color:
-                    activeTab === tab?.id
-                      ? "var(--color-primary)"
-                      : "var(--color-text-secondary)",
-                  background:
-                    activeTab === tab?.id ? "rgba(30,64,175,0.04)" : "transparent",
+                  borderBottomColor: activeTab === tab?.id ? "var(--color-primary)" : "transparent",
+                  color: activeTab === tab?.id ? "var(--color-primary)" : "var(--color-text-secondary)",
+                  background: activeTab === tab?.id ? "rgba(30,64,175,0.04)" : "transparent",
                 }}
               >
                 <Icon
@@ -204,16 +353,11 @@ const Dashboard = () => {
                   size={18}
                   color={activeTab === tab?.id ? "var(--color-primary)" : "var(--color-muted-foreground)"}
                 />
-                <span>{tab?.label}</span>
+                <span>{t(tab?.labelKey)}</span>
                 {tab?.id === "saved" && savedSchemes?.length > 0 && (
                   <span
                     className="inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold"
-                    style={{
-                      background: "var(--color-primary)",
-                      color: "#FFFFFF",
-                      fontFamily: "Nunito Sans, sans-serif",
-                    }}
-                    aria-label={`${savedSchemes?.length} saved schemes`}
+                    style={{ background: "var(--color-primary)", color: "#FFFFFF", fontFamily: "Nunito Sans, sans-serif" }}
                   >
                     {savedSchemes?.length}
                   </span>
@@ -221,12 +365,7 @@ const Dashboard = () => {
                 {tab?.id === "history" && quizHistory?.length > 0 && (
                   <span
                     className="inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold"
-                    style={{
-                      background: "var(--color-accent)",
-                      color: "#FFFFFF",
-                      fontFamily: "Nunito Sans, sans-serif",
-                    }}
-                    aria-label={`${quizHistory?.length} quiz attempts`}
+                    style={{ background: "var(--color-accent)", color: "#FFFFFF", fontFamily: "Nunito Sans, sans-serif" }}
                   >
                     {quizHistory?.length}
                   </span>
@@ -234,7 +373,6 @@ const Dashboard = () => {
               </button>
             ))}
 
-            {/* Logout button in tab bar - desktop */}
             <div className="ml-auto flex items-center px-4 hidden md:flex">
               <Button
                 variant="ghost"
@@ -244,43 +382,25 @@ const Dashboard = () => {
                 onClick={() => setShowLogoutConfirm(true)}
                 className="text-red-600"
               >
-                Sign Out
+                {t("dashboard.signOut")}
               </Button>
             </div>
           </div>
 
-          {/* Tab Panels */}
           <div className="p-4 md:p-6">
-            {/* Saved Schemes */}
             {activeTab === "saved" && (
-              <div
-                id="tabpanel-saved"
-                role="tabpanel"
-                aria-labelledby="tab-saved"
-              >
+              <div id="tabpanel-saved" role="tabpanel" aria-labelledby="tab-saved">
                 <div className="flex items-center justify-between mb-4">
-                  <h2
-                    className="text-base md:text-lg font-semibold"
-                    style={{ fontFamily: "Poppins, sans-serif", color: "var(--color-text-primary)" }}
-                  >
-                    Saved Schemes
+                  <h2 className="text-base md:text-lg font-semibold" style={{ fontFamily: "Poppins, sans-serif", color: "var(--color-text-primary)" }}>
+                    {t("dashboard.savedSchemes")}
                     {savedSchemes?.length > 0 && (
-                      <span
-                        className="ml-2 text-sm font-normal"
-                        style={{ color: "var(--color-text-secondary)" }}
-                      >
+                      <span className="ml-2 text-sm font-normal" style={{ color: "var(--color-text-secondary)" }}>
                         ({savedSchemes?.length} schemes)
                       </span>
                     )}
                   </h2>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    iconName="Plus"
-                    iconPosition="left"
-                    onClick={handleStartQuiz}
-                  >
-                    Discover More
+                  <Button variant="default" size="sm" iconName="Plus" iconPosition="left" onClick={handleStartQuiz}>
+                    {t("dashboard.discoverMore")}
                   </Button>
                 </div>
                 <SavedSchemesSection
@@ -291,36 +411,19 @@ const Dashboard = () => {
               </div>
             )}
 
-            {/* Quiz History */}
             {activeTab === "history" && (
-              <div
-                id="tabpanel-history"
-                role="tabpanel"
-                aria-labelledby="tab-history"
-              >
+              <div id="tabpanel-history" role="tabpanel" aria-labelledby="tab-history">
                 <div className="flex items-center justify-between mb-4">
-                  <h2
-                    className="text-base md:text-lg font-semibold"
-                    style={{ fontFamily: "Poppins, sans-serif", color: "var(--color-text-primary)" }}
-                  >
-                    Quiz History
+                  <h2 className="text-base md:text-lg font-semibold" style={{ fontFamily: "Poppins, sans-serif", color: "var(--color-text-primary)" }}>
+                    My Quizzes
                     {quizHistory?.length > 0 && (
-                      <span
-                        className="ml-2 text-sm font-normal"
-                        style={{ color: "var(--color-text-secondary)" }}
-                      >
+                      <span className="ml-2 text-sm font-normal" style={{ color: "var(--color-text-secondary)" }}>
                         ({quizHistory?.length} attempts)
                       </span>
                     )}
                   </h2>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    iconName="PlayCircle"
-                    iconPosition="left"
-                    onClick={handleStartQuiz}
-                  >
-                    New Quiz
+                  <Button variant="default" size="sm" iconName="PlayCircle" iconPosition="left" onClick={handleStartQuiz}>
+                    {t("dashboard.newQuiz")}
                   </Button>
                 </div>
                 <QuizHistorySection
@@ -331,28 +434,16 @@ const Dashboard = () => {
               </div>
             )}
 
-            {/* Profile */}
             {activeTab === "profile" && (
-              <div
-                id="tabpanel-profile"
-                role="tabpanel"
-                aria-labelledby="tab-profile"
-              >
+              <div id="tabpanel-profile" role="tabpanel" aria-labelledby="tab-profile">
                 <div className="flex items-center justify-between mb-4">
-                  <h2
-                    className="text-base md:text-lg font-semibold"
-                    style={{ fontFamily: "Poppins, sans-serif", color: "var(--color-text-primary)" }}
-                  >
-                    My Profile
+                  <h2 className="text-base md:text-lg font-semibold" style={{ fontFamily: "Poppins, sans-serif", color: "var(--color-text-primary)" }}>
+                    {t("dashboard.myProfile")}
                   </h2>
                 </div>
                 <ProfileSection user={user} onUpdateProfile={handleUpdateProfile} />
 
-                {/* Mobile logout */}
-                <div
-                  className="mt-8 pt-6 border-t md:hidden"
-                  style={{ borderColor: "var(--color-border)" }}
-                >
+                <div className="mt-8 pt-6 border-t md:hidden" style={{ borderColor: "var(--color-border)" }}>
                   <Button
                     variant="destructive"
                     size="default"
@@ -361,7 +452,7 @@ const Dashboard = () => {
                     fullWidth
                     onClick={() => setShowLogoutConfirm(true)}
                   >
-                    Sign Out
+                    {t("dashboard.signOut")}
                   </Button>
                 </div>
               </div>
@@ -369,7 +460,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Quick Actions - bottom */}
         <div
           className="mt-6 rounded-2xl p-4 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-4"
           style={{
@@ -386,14 +476,11 @@ const Dashboard = () => {
               <Icon name="Lightbulb" size={20} color="#FFFFFF" />
             </div>
             <div>
-              <p
-                className="text-sm font-semibold"
-                style={{ fontFamily: "Poppins, sans-serif", color: "#9A3412" }}
-              >
-                Update your profile for better matches
+              <p className="text-sm font-semibold" style={{ fontFamily: "Poppins, sans-serif", color: "#9A3412" }}>
+                {t("dashboard.updateProfileHint")}
               </p>
               <p className="text-xs" style={{ color: "#C2410C" }}>
-                Accurate demographic details help us find more relevant schemes for you.
+                {t("dashboard.updateProfileDesc")}
               </p>
             </div>
           </div>
@@ -405,22 +492,13 @@ const Dashboard = () => {
             onClick={() => setActiveTab("profile")}
             style={{ background: "var(--color-accent)", border: "none", flexShrink: 0 }}
           >
-            Update Profile
+            {t("dashboard.updateProfile")}
           </Button>
         </div>
 
-        {/* Footer */}
-        <footer
-          className="mt-8 text-center text-xs py-4"
-          style={{ color: "var(--color-text-secondary)", fontFamily: "Nunito Sans, sans-serif" }}
-        >
-          <p>
-            © {new Date()?.getFullYear()} YojanaSathi · Government of India · All scheme information is
-            sourced from official government portals.
-          </p>
-        </footer>
+        <AppFooter minimal />
       </main>
-      {/* Logout Confirmation Modal */}
+
       {showLogoutConfirm && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -451,21 +529,16 @@ const Dashboard = () => {
                   className="text-base font-semibold"
                   style={{ fontFamily: "Poppins, sans-serif", color: "var(--color-text-primary)" }}
                 >
-                  Sign Out
+                  {t("dashboard.signOut")}
                 </h3>
                 <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
-                  Are you sure you want to sign out?
+                  {t("dashboard.confirmSignOut")}
                 </p>
               </div>
             </div>
             <div className="flex gap-3">
-              <Button
-                variant="outline"
-                size="default"
-                fullWidth
-                onClick={() => setShowLogoutConfirm(false)}
-              >
-                Cancel
+              <Button variant="outline" size="default" fullWidth onClick={() => setShowLogoutConfirm(false)}>
+                {t("dashboard.cancel")}
               </Button>
               <Button
                 variant="destructive"
@@ -475,7 +548,7 @@ const Dashboard = () => {
                 iconPosition="left"
                 onClick={handleLogout}
               >
-                Sign Out
+                {t("dashboard.signOut")}
               </Button>
             </div>
           </div>
@@ -486,3 +559,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

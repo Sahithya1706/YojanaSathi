@@ -1,8 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Icon from "components/AppIcon";
+import { useLanguage } from "context/LanguageContext";
 
 const RegisterHeader = () => {
+  const { t } = useLanguage();
   return (
     <div className="text-center mb-6 md:mb-8">
       {/* Icon */}
@@ -28,13 +30,13 @@ const RegisterHeader = () => {
 
       {/* Login link */}
       <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-        Already have an account?{" "}
+        {t("register.alreadyAccount")}{" "}
         <Link
-          to="/home-page"
+          to="/login"
           className="font-semibold underline"
           style={{ color: "var(--color-primary)" }}
         >
-          Sign In
+          {t("register.loginLink")}
         </Link>
       </p>
     </div>

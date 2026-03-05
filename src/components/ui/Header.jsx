@@ -1,20 +1,21 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon from 'components/AppIcon';
 import LanguageSelector from 'components/ui/LanguageSelector';
+import { useLanguage } from 'context/LanguageContext';
 
 const NAV_ITEMS = [
-    { label: 'Home', path: '/home-page', icon: 'Home', public: true },
-    { label: 'Start Quiz', path: '/home-page#quiz', icon: 'ClipboardList', public: true, isCTA: false },
-    { label: 'My Dashboard', path: '/dashboard', icon: 'LayoutDashboard', public: false },
+    { labelKey: 'header.home', path: '/', icon: 'Home', public: true },
+    { labelKey: 'header.startQuiz', path: '/quiz', icon: 'ClipboardList', public: true, action: 'quiz' },
+    { labelKey: 'header.dashboard', path: '/dashboard', icon: 'LayoutDashboard', public: false },
 ];
 
 const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
+    const { language, setLanguage, t } = useLanguage();
     const location = useLocation();
     const navigate = useNavigate();
     const [mobileOpen, setMobileOpen] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
-    const [currentLang, setCurrentLang] = useState('en');
     const profileRef = useRef(null);
 
     const visibleNavItems = NAV_ITEMS?.filter(item => item?.public || isAuthenticated);
@@ -62,16 +63,17 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
     };
 
     const handleStartQuiz = () => {
-        navigate('/quiz'); 
-        setTimeout(() => {
-            const quizSection = document.getElementById('quiz');
-            if (quizSection) quizSection?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+        const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+        navigate(storedUser ? "/quiz" : "/register");
+    };
+
+    const handleLanguageSelection = (code) => {
+        setLanguage(code);
     };
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to main content</a>
+            <a href="#main-content" className="skip-link">{t("header.skipToMain")}</a>
             {/* Tricolor accent bar */}
             <div className="tricolor-bar fixed top-0 left-0 right-0 z-[101]" aria-hidden="true" />
             <header className="header-nav" style={{ top: '4px' }} role="banner">
@@ -79,7 +81,7 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
 
                     {/* Logo */}
                     <Link
-                        to="/home-page"
+                        to="/"
                         className="header-logo-container"
                         aria-label="Government Scheme Discovery - Home"
                     >
@@ -109,7 +111,7 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                         aria-label="Primary navigation"
                     >
                         {visibleNavItems?.map(item => (
-                            item?.path?.includes('#') ? (
+                            item?.action === "quiz" ? (
                                 <button
                                     key={item?.path}
                                     onClick={handleStartQuiz}
@@ -117,7 +119,7 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                                     aria-current={isActive(item?.path) ? 'page' : undefined}
                                 >
                                     <Icon name={item?.icon} size={18} />
-                                    {item?.label}
+                                    {t(item?.labelKey)}
                                 </button>
                             ) : (
                                 <Link
@@ -127,7 +129,7 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                                     aria-current={isActive(item?.path) ? 'page' : undefined}
                                 >
                                     <Icon name={item?.icon} size={18} />
-                                    {item?.label}
+                                    {t(item?.labelKey)}
                                 </Link>
                             )
                         ))}
@@ -138,13 +140,13 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                         {/* Trust badge - desktop only */}
                         <div className="trust-badge hidden xl:flex" aria-label="Secure government platform">
                             <Icon name="ShieldCheck" size={13} color="rgba(255,255,255,0.9)" />
-                            <span>Govt. Verified</span>
+                            <span>{t("header.govtVerified")}</span>
                         </div>
 
                         {/* Language Selector */}
                         <LanguageSelector
-                            currentLang={currentLang}
-                            onLanguageChange={setCurrentLang}
+                            currentLang={language}
+                            onLanguageChange={handleLanguageSelection}
                         />
 
                         {/* Auth section */}
@@ -175,7 +177,7 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                                         {user?.name ? user?.name?.charAt(0)?.toUpperCase() : 'U'}
                                     </div>
                                     <span className="hidden xl:inline max-w-[120px] truncate">
-                                        {user?.name || 'My Account'}
+                                        {user?.name || t("header.account")}
                                     </span>
                                     <Icon name={profileOpen ? 'ChevronUp' : 'ChevronDown'} size={14} />
                                 </button>
@@ -201,15 +203,15 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                                         </div>
                                         <Link to="/dashboard" className="profile-option" role="menuitem">
                                             <Icon name="LayoutDashboard" size={16} color="var(--color-muted-foreground)" />
-                                            My Dashboard
+                                            {t("header.dashboard")}
                                         </Link>
-                                        <button className="profile-option" role="menuitem">
+                                        <button className="profile-option" role="menuitem" onClick={() => navigate("/dashboard?saved=true")}>
                                             <Icon name="BookmarkCheck" size={16} color="var(--color-muted-foreground)" />
-                                            Saved Schemes
+                                            {t("header.savedSchemes")}
                                         </button>
-                                        <button className="profile-option" role="menuitem">
+                                        <button className="profile-option" role="menuitem" onClick={() => navigate("/profile")}>
                                             <Icon name="User" size={16} color="var(--color-muted-foreground)" />
-                                            Profile Settings
+                                            {t("header.profileSettings")}
                                         </button>
                                         <div
                                             className="border-t my-1"
@@ -222,7 +224,7 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                                             onClick={handleLogout}
                                         >
                                             <Icon name="LogOut" size={16} color="var(--color-destructive)" />
-                                            Sign Out
+                                            {t("header.signOut")}
                                         </button>
                                     </div>
                                 )}
@@ -231,11 +233,11 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                             <div className="hidden lg:flex items-center gap-2">
                                 <Link to="/login" className="auth-login-btn" aria-label="Login to your account">
                                     <Icon name="LogIn" size={16} />
-                                    Login
+                                    {t("header.login")}
                                 </Link>
                                 <Link to="/register" className="nav-cta" aria-label="Register for free">
                                     <Icon name="UserPlus" size={16} />
-                                    Register
+                                    {t("header.register")}
                                 </Link>
                             </div>
                         )}
@@ -244,11 +246,11 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                         <button
                             className="nav-cta lg:hidden"
                             onClick={handleStartQuiz}
-                            aria-label="Start eligibility quiz"
+                            aria-label={t("header.startEligibilityQuiz")}
                         >
                             <Icon name="ClipboardList" size={16} />
-                            <span className="hidden sm:inline">Start Quiz</span>
-                            <span className="sm:hidden">Quiz</span>
+                            <span className="hidden sm:inline">{t("header.startQuiz")}</span>
+                            <span className="sm:hidden">{t("header.quiz")}</span>
                         </button>
 
                         {/* Hamburger - mobile only */}
@@ -309,7 +311,7 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                 <div className="px-5 py-3">
                     <div className="trust-badge inline-flex">
                         <Icon name="ShieldCheck" size={13} color="rgba(255,255,255,0.9)" />
-                        <span>Government Verified Platform</span>
+                        <span>{t("header.govtPlatform")}</span>
                     </div>
                 </div>
 
@@ -320,14 +322,15 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                     aria-label="Mobile navigation"
                 >
                     {visibleNavItems?.map(item => (
-                        item?.path?.includes('#') ? (
+                        item?.action === "quiz" ? (
                             <button
                                 key={item?.path}
                                 onClick={() => { setMobileOpen(false); handleStartQuiz(); }}
                                 className={`nav-link w-full justify-start ${isActive(item?.path) ? 'active' : ''}`}
+                                aria-current={isActive(item?.path) ? 'page' : undefined}
                             >
                                 <Icon name={item?.icon} size={20} />
-                                {item?.label}
+                                {t(item?.labelKey)}
                             </button>
                         ) : (
                             <Link
@@ -335,9 +338,10 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                                 to={item?.path}
                                 className={`nav-link ${isActive(item?.path) ? 'active' : ''}`}
                                 aria-current={isActive(item?.path) ? 'page' : undefined}
+                                onClick={() => setMobileOpen(false)}
                             >
                                 <Icon name={item?.icon} size={20} />
-                                {item?.label}
+                                {t(item?.labelKey)}
                             </Link>
                         )
                     ))}
@@ -380,20 +384,20 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                                 </div>
                             </div>
                             <Link
-                                to="/dashboard"
+                                to="/dashboard?saved=true"
                                 className="nav-link"
                                 onClick={() => setMobileOpen(false)}
                             >
                                 <Icon name="BookmarkCheck" size={18} />
-                                Saved Schemes
+                                {t("header.savedSchemes")}
                             </Link>
                             <Link
-                                to="/dashboard"
+                                to="/profile"
                                 className="nav-link"
                                 onClick={() => setMobileOpen(false)}
                             >
                                 <Icon name="User" size={18} />
-                                Profile Settings
+                                {t("header.profileSettings")}
                             </Link>
                             <button
                                 className="nav-link w-full justify-start mt-1"
@@ -401,18 +405,18 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                                 onClick={handleLogout}
                             >
                                 <Icon name="LogOut" size={18} color="#FCA5A5" />
-                                Sign Out
+                                {t("header.signOut")}
                             </button>
                         </>
                     ) : (
                         <>
                             <Link
-                                to="/register"
+                                to="/login"
                                 className="auth-login-btn justify-center"
                                 onClick={() => setMobileOpen(false)}
                             >
                                 <Icon name="LogIn" size={18} />
-                                Login to Account
+                                {t("header.loginToAccount")}
                             </Link>
                             <Link
                                 to="/register"
@@ -420,7 +424,7 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                                 onClick={() => setMobileOpen(false)}
                             >
                                 <Icon name="UserPlus" size={18} />
-                                Create Free Account
+                                {t("header.createAccount")}
                             </Link>
                         </>
                     )}
@@ -432,7 +436,7 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                     className="px-5 py-4 text-center"
                     style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem' }}
                 >
-                    © 2026 YojanaSathi · Government of India
+                    © 2026 YojanaSathi | Government of India
                 </div>
             </div>
         </>
@@ -440,3 +444,5 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
 };
 
 export default Header;
+
+

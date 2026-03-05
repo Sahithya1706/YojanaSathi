@@ -12,6 +12,14 @@ const categoryColors = {
 };
 
 const SavedSchemesSection = ({ schemes, onViewDetails, onRemoveBookmark }) => {
+  const handleApply = (scheme) => {
+    if (scheme?.portalUrl) {
+      window.open(scheme.portalUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+    window.alert("Visit your nearest CSC center to apply.");
+  };
+
   if (!schemes || schemes?.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
@@ -108,7 +116,7 @@ const SavedSchemesSection = ({ schemes, onViewDetails, onRemoveBookmark }) => {
                 size="sm"
                 iconName="Eye"
                 iconPosition="left"
-                onClick={() => onViewDetails(scheme?.id)}
+                onClick={() => onViewDetails(scheme)}
                 className="flex-1"
               >
                 View Details
@@ -118,7 +126,7 @@ const SavedSchemesSection = ({ schemes, onViewDetails, onRemoveBookmark }) => {
                 size="sm"
                 iconName="ExternalLink"
                 iconPosition="left"
-                onClick={() => window.open(scheme?.portalUrl, "_blank")}
+                onClick={() => handleApply(scheme)}
                 className="flex-1"
               >
                 Apply

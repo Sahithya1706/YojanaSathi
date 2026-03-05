@@ -10,10 +10,10 @@ const FooterSection = ({ lang }) => {
       tagline: "Helping every Indian citizen access government benefits they deserve.",
       quickLinks: "Quick Links",
       links: [
-        { label: "Home", path: "/home-page" },
-        { label: "Start Quiz", path: "/register" },
+        { label: "Home", path: "/" },
+        { label: "Start Quiz", path: "/quiz" },
         { label: "Register", path: "/register" },
-        { label: "Login", path: "/register" },
+        { label: "Login", path: "/login" },
         { label: "Dashboard", path: "/dashboard" },
       ],
       categories: "Scheme Categories",
@@ -27,10 +27,10 @@ const FooterSection = ({ lang }) => {
       tagline: "हर भारतीय नागरिक को उनके हक के सरकारी लाभ तक पहुंचाने में मदद।",
       quickLinks: "त्वरित लिंक",
       links: [
-        { label: "होम", path: "/home-page" },
-        { label: "क्विज़ शुरू करें", path: "/register" },
+        { label: "होम", path: "/" },
+        { label: "क्विज़ शुरू करें", path: "/quiz" },
         { label: "पंजीकरण", path: "/register" },
-        { label: "लॉगिन", path: "/register" },
+        { label: "लॉगिन", path: "/login" },
         { label: "डैशबोर्ड", path: "/dashboard" },
       ],
       categories: "योजना श्रेणियां",
@@ -44,10 +44,10 @@ const FooterSection = ({ lang }) => {
       tagline: "प्रत्येक भारतीय नागरिकाला त्यांच्या हक्काचे सरकारी लाभ मिळवण्यास मदत.",
       quickLinks: "त्वरित दुवे",
       links: [
-        { label: "मुख्यपृष्ठ", path: "/home-page" },
-        { label: "क्विझ सुरू करा", path: "/register" },
+        { label: "मुख्यपृष्ठ", path: "/" },
+        { label: "क्विझ सुरू करा", path: "/quiz" },
         { label: "नोंदणी", path: "/register" },
-        { label: "लॉगिन", path: "/register" },
+        { label: "लॉगिन", path: "/login" },
         { label: "डॅशबोर्ड", path: "/dashboard" },
       ],
       categories: "योजना श्रेणी",
@@ -145,6 +145,9 @@ const FooterSection = ({ lang }) => {
             ))}
           </div>
         </div>
+        <p className="text-xs text-center mt-4" style={{ color: "#64748B" }}>
+          Built with ❤️ by PixelCoders
+        </p>
       </div>
     </footer>
   );

@@ -1,13 +1,17 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "components/ui/Header";
 import Icon from "components/AppIcon";
 import Button from "components/ui/Button";
 import Input from "components/ui/Input";
+import AppFooter from "components/ui/AppFooter";
+import { useLanguage } from "context/LanguageContext";
+import { login } from "utils/auth";
 
 const Login = () => {
 
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const [formData,setFormData] = useState({
     email:"",
@@ -21,21 +25,15 @@ const Login = () => {
     setFormData(prev => ({...prev,[name]:value}));
   };
 
-  const handleSubmit = (e)=>{
+  const handleSubmit = async (e)=>{
     e.preventDefault();
-
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-
-    const user = users.find(u => u.email === formData.email);
-
-    if(!user){
-      setError("User not found. Please register first.");
+    setError("");
+    const result = await login(formData);
+    if (!result.ok) {
+      setError(result.message || t("login.invalidCredentials"));
       return;
     }
-
-    localStorage.setItem("user",JSON.stringify(user));
-
-    navigate("/dashboard");
+    navigate(result.redirectTo);
   };
 
   return (
@@ -73,11 +71,11 @@ const Login = () => {
               className="text-2xl font-bold"
               style={{fontFamily:"Poppins, sans-serif"}}
             >
-              Login to YojanaSathi
+              {t("login.title")}
             </h2>
 
             <p className="text-sm mt-2 text-gray-500">
-              Access your personalized scheme dashboard
+              {t("login.subtitle")}
             </p>
 
           </div>
@@ -85,22 +83,22 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
 
             <Input
-              label="Email Address"
+              label={t("login.email")}
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="Enter your email"
+              placeholder={t("login.emailPlaceholder")}
               required
             />
 
             <Input
-              label="Password"
+              label={t("login.password")}
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Enter password"
+              placeholder={t("login.passwordPlaceholder")}
               required
             />
 
@@ -118,14 +116,23 @@ const Login = () => {
               iconName="LogIn"
               iconPosition="left"
             >
-              Login
+              {t("login.submit")}
             </Button>
 
           </form>
 
+          <p className="text-sm text-center mt-4" style={{ color: "var(--color-text-secondary)" }}>
+            {t("login.noAccount")}{" "}
+            <Link to="/register" className="font-semibold underline" style={{ color: "var(--color-primary)" }}>
+              {t("login.registerLink")}
+            </Link>
+          </p>
+
         </div>
 
       </main>
+
+      <AppFooter minimal />
 
     </div>
   );

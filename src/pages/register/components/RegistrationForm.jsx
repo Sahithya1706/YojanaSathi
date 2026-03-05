@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Icon from "components/AppIcon";
 import Button from "components/ui/Button";
 import Input from "components/ui/Input";
+import { registerUser } from "utils/auth";
 
 const occupationOptions = [
   { value: "", label: "Select Occupation" },
@@ -131,43 +132,35 @@ const RegistrationForm = () => {
     if (errors?.[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e?.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors)?.length > 0) {
       setErrors(validationErrors);
       return;
     }
+
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    const userData = {
+      name: formData.fullName,
+      email: formData.email,
+      password: formData.password,
+      phone: formData.phone,
+      age: formData.age,
+      occupation: formData.occupation,
+      category: formData.category,
+      state: formData.state,
+    };
 
-      const userData = {
-        id: Date.now(),
-        name: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        age: formData.age,
-        occupation: formData.occupation,
-        category: formData.category,
-        state: formData.state,
-        registeredAt: new Date().toLocaleString()
-      };
+    const result = await registerUser(userData);
+    setIsLoading(false);
+    if (!result.ok) {
+      setErrors((prev) => ({ ...prev, email: result.message || "Unable to register user." }));
+      return;
+    }
 
-      // current logged user
-      localStorage.setItem("user", JSON.stringify(userData));
-
-      // users list for admin
-      const existingUsers = JSON.parse(localStorage.getItem("users")) || [];
-
-      existingUsers.push(userData);
-
-      localStorage.setItem("users", JSON.stringify(existingUsers));
-
-      setRegistrationSuccess(true);
-
-      setTimeout(() => navigate("/dashboard"), 1500);
-    }, 1800);
+    setRegistrationSuccess(true);
+    setTimeout(() => navigate("/dashboard"), 1000);
   };
 
   if (registrationSuccess) {

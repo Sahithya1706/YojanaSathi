@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Icon from "components/AppIcon";
 import Button from "components/ui/Button";
 import Input from "components/ui/Input";
@@ -14,6 +14,17 @@ const ProfileSection = ({ user, onUpdateProfile }) => {
     occupation: user?.occupation || "",
   });
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    setFormData({
+      name: user?.name || "",
+      email: user?.email || "",
+      phone: user?.phone || "",
+      state: user?.state || "",
+      age: user?.age || "",
+      occupation: user?.occupation || "",
+    });
+  }, [user]);
 
   const handleChange = (field) => (e) => {
     setFormData((prev) => ({ ...prev, [field]: e?.target?.value }));

@@ -26,8 +26,8 @@ const NotFound = () => {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button
-            variant="primary"
-            icon={<Icon name="ArrowLeft" />}
+            variant="default"
+            iconName="ArrowLeft"
             iconPosition="left"
             onClick={() => window.history?.back()}
           >
@@ -36,7 +36,7 @@ const NotFound = () => {
 
           <Button
             variant="outline"
-            icon={<Icon name="Home" />}
+            iconName="Home"
             iconPosition="left"
             onClick={handleGoHome}
           >

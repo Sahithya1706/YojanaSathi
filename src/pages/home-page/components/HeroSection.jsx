@@ -1,9 +1,8 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import Icon from "components/AppIcon";
 import Button from "components/ui/Button";
 
-const HeroSection = ({ t, lang }) => {
+const HeroSection = ({ t, lang, onStartQuiz, onViewSchemes, onCheckEligibility }) => {
   const content = {
     en: {
       badge: "Government of India Verified Platform",
@@ -95,29 +94,39 @@ const HeroSection = ({ t, lang }) => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-8 md:mb-10">
-              <Link to="/quiz">
-                <Button
-                  variant="default"
-                  size="lg"
-                  iconName="ClipboardList"
-                  iconPosition="left"
-                  className="w-full sm:w-auto"
-                  style={{ background: "var(--color-accent)", border: "none", fontSize: "1rem", padding: "14px 28px" }}
-                >
-                  {c?.cta}
-                </Button>
-              </Link>
-              <Link to="/home-page">                <Button
+              <Button
+                variant="default"
+                size="lg"
+                iconName="ClipboardList"
+                iconPosition="left"
+                className="w-full sm:w-auto"
+                style={{ background: "var(--color-accent)", border: "none", fontSize: "1rem", padding: "14px 28px" }}
+                onClick={onStartQuiz}
+              >
+                {c?.cta}
+              </Button>
+              <Button
                 variant="outline"
                 size="lg"
                 iconName="Search"
                 iconPosition="left"
                 className="w-full sm:w-auto"
                 style={{ borderColor: "rgba(255,255,255,0.5)", color: "#FFFFFF", background: "rgba(255,255,255,0.1)" }}
+                onClick={onViewSchemes}
               >
                 {c?.secondary}
               </Button>
-              </Link>
+              <Button
+                  variant="outline"
+                  size="lg"
+                  iconName="ShieldCheck"
+                  iconPosition="left"
+                  className="w-full sm:w-auto"
+                  style={{ borderColor: "rgba(255,255,255,0.5)", color: "#FFFFFF", background: "rgba(255,255,255,0.1)" }}
+                  onClick={onCheckEligibility}
+                >
+                  Check Scheme Eligibility
+                </Button>
             </div>
 
             {/* Trust signals */}

@@ -59,7 +59,7 @@ const CTABannerSection = ({ lang }) => {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-5">
-          <Link to="/register">
+          <Link to="/quiz">
             <Button
               variant="default"
               size="lg"
