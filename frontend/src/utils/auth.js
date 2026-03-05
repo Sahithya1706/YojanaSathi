@@ -2,7 +2,7 @@ import axios from "axios";
 
 const USER_SESSION_KEY = "user";
 const ADMIN_SESSION_KEY = "admin";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://yojanasathi.onrender.com";
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },

@@ -33,7 +33,7 @@ npm install
 npm run dev
 ```
 
-Backend API base: `http://localhost:5000/api`
+Backend API base: `https://yojanasathi.onrender.com/api`
 
 ## Run Frontend
 
@@ -46,7 +46,7 @@ npm run dev
 Frontend env includes:
 
 ```env
-VITE_API_BASE_URL=http://localhost:5000
+VITE_API_BASE_URL=https://yojanasathi.onrender.com
 ```
 
 ## API Routes (Current)
