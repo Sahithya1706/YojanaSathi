@@ -47,20 +47,14 @@ const QuizResultPage = () => {
         ministry: scheme?.ministry || "",
         benefit: scheme?.benefit || "",
         description: scheme?.description || "",
+        applyLink: scheme?.applyLink || scheme?.officialLink || scheme?.portalUrl || "",
+        officialLink: scheme?.officialLink || scheme?.applyLink || scheme?.portalUrl || "",
         portalUrl: scheme?.portalUrl || "",
       },
       ...saved,
     ];
     localStorage.setItem("savedSchemes", JSON.stringify(updated));
     setNotice("Scheme saved.");
-  };
-
-  const applyToScheme = (scheme) => {
-    if (scheme?.portalUrl) {
-      window.open(scheme.portalUrl, "_blank", "noopener,noreferrer");
-      return;
-    }
-    setNotice("Official application link is not available for this scheme.");
   };
 
   if (!recentResult) {
@@ -102,24 +96,38 @@ const QuizResultPage = () => {
 
           <h2 className="text-lg font-semibold mb-3">Recommended Schemes</h2>
           <div className="grid gap-3">
-            {(recentResult.recommendations || []).map((scheme) => (
-              <div key={scheme?.id || scheme?.name} className="rounded-lg border p-4 bg-slate-50">
-                <p className="font-semibold">{scheme?.name}</p>
-                <p className="text-sm mt-1">{scheme?.benefit}</p>
-                {scheme?.reason && <p className="text-xs text-slate-600 mt-2">{scheme.reason}</p>}
-                <div className="flex gap-2 mt-3">
-                  <Button size="sm" variant="outline" onClick={() => navigate(`/scheme/${scheme?.id}`)}>
-                    View Details
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => saveScheme(scheme)}>
-                    Save Scheme
-                  </Button>
-                  <Button size="sm" onClick={() => applyToScheme(scheme)}>
-                    Apply
-                  </Button>
+            {(recentResult.recommendations || []).map((scheme) => {
+              const applyUrl = scheme?.applyLink || scheme?.officialLink || scheme?.portalUrl;
+              return (
+                <div key={scheme?.id || scheme?.name} className="rounded-lg border p-4 bg-slate-50">
+                  <p className="font-semibold">{scheme?.name}</p>
+                  <p className="text-sm mt-1">{scheme?.benefit}</p>
+                  {scheme?.reason && <p className="text-xs text-slate-600 mt-2">{scheme.reason}</p>}
+                  <div className="flex gap-2 mt-3">
+                    <Button size="sm" variant="outline" onClick={() => navigate(`/scheme/${scheme?.id}`)}>
+                      View Details
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => saveScheme(scheme)}>
+                      Save Scheme
+                    </Button>
+                    {applyUrl ? (
+                      <Button size="sm" asChild>
+                        <a href={applyUrl} target="_blank" rel="noopener noreferrer">
+                          Apply
+                        </a>
+                      </Button>
+                    ) : (
+                      <Button size="sm" disabled>
+                        Application link not available
+                      </Button>
+                    )}
+                  </div>
+                  {!applyUrl && (
+                    <p className="text-xs text-slate-600 mt-2">Application link not available</p>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {notice && <p className="text-sm mt-4 text-blue-700">{notice}</p>}

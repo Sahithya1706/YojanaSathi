@@ -90,6 +90,8 @@ const Dashboard = ({ initialTab = "saved" }) => {
       category: scheme?.category || "General",
       ministry: scheme?.ministry || "",
       benefit: scheme?.benefit || "",
+      applyLink: scheme?.applyLink || scheme?.officialLink || scheme?.portalUrl || "",
+      officialLink: scheme?.officialLink || scheme?.applyLink || scheme?.portalUrl || "",
       portalUrl: scheme?.portalUrl || "",
       recommendationReason: scheme?.reason || scheme?.recommendationReason || "",
       savedAt: new Date().toISOString(),
@@ -101,11 +103,11 @@ const Dashboard = ({ initialTab = "saved" }) => {
   };
 
   const handleApplyScheme = (scheme) => {
-    if (scheme?.portalUrl) {
-      window.open(scheme.portalUrl, "_blank", "noopener,noreferrer");
+    const applyUrl = scheme?.applyLink || scheme?.officialLink || scheme?.portalUrl;
+    if (applyUrl) {
+      window.open(applyUrl, "_blank", "noopener,noreferrer");
       return;
     }
-    window.alert("Visit your nearest CSC center to apply.");
   };
 
   const handleRemoveBookmark = (schemeId) => {
@@ -264,52 +266,56 @@ const Dashboard = ({ initialTab = "saved" }) => {
 
             {recommendedSchemes?.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {recommendedSchemes.slice(0, 6).map((scheme) => (
-                  <div
-                    key={`rec-${scheme?.id || scheme?.name}`}
-                    className="rounded-xl border p-4"
-                    style={{ borderColor: "var(--color-border)", background: "#F8FAFC" }}
-                  >
-                    <p className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>
-                      {scheme?.name}
-                    </p>
-                    {scheme?.benefit && (
-                      <p className="text-xs mt-1" style={{ color: "var(--color-text-secondary)" }}>
-                        {scheme.benefit}
-                      </p>
-                    )}
-                    {scheme?.recommendationReason && (
-                      <p className="text-xs mt-2" style={{ color: "#334155" }}>
-                        {scheme.recommendationReason}
-                      </p>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-3"
-                      onClick={() => handleSaveRecommendedScheme(scheme)}
+                {recommendedSchemes.slice(0, 6).map((scheme) => {
+                  const applyUrl = scheme?.applyLink || scheme?.officialLink || scheme?.portalUrl;
+                  return (
+                    <div
+                      key={`rec-${scheme?.id || scheme?.name}`}
+                      className="rounded-xl border p-4"
+                      style={{ borderColor: "var(--color-border)", background: "#F8FAFC" }}
                     >
-                      Save Scheme
-                    </Button>
-                    <div className="mt-2 flex gap-2">
+                      <p className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                        {scheme?.name}
+                      </p>
+                      {scheme?.benefit && (
+                        <p className="text-xs mt-1" style={{ color: "var(--color-text-secondary)" }}>
+                          {scheme.benefit}
+                        </p>
+                      )}
+                      {scheme?.recommendationReason && (
+                        <p className="text-xs mt-2" style={{ color: "#334155" }}>
+                          {scheme.recommendationReason}
+                        </p>
+                      )}
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1"
-                        onClick={() => handleViewDetails(scheme)}
+                        className="mt-3"
+                        onClick={() => handleSaveRecommendedScheme(scheme)}
                       >
-                        View Details
+                        Save Scheme
                       </Button>
-                      <Button
-                        size="sm"
-                        className="flex-1"
-                        onClick={() => handleApplyScheme(scheme)}
-                      >
-                        Apply
-                      </Button>
+                      <div className="mt-2 flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => handleViewDetails(scheme)}
+                        >
+                          View Details
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => handleApplyScheme(scheme)}
+                          disabled={!applyUrl}
+                        >
+                          {applyUrl ? "Apply" : "Link Unavailable"}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>

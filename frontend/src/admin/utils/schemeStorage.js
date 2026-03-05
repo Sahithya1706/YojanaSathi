@@ -1,8 +1,40 @@
 import { schemes as defaultSchemes } from "data/schemes";
 
 const STORAGE_KEY = "schemes";
+const normalizeText = (value) => String(value || "").trim().toLowerCase();
+
+const defaultSchemeById = new Map(
+  (defaultSchemes || []).map((scheme) => [String(scheme?.id || ""), scheme])
+);
+const defaultSchemeByName = new Map(
+  (defaultSchemes || []).map((scheme) => [normalizeText(scheme?.name), scheme])
+);
+
+const getCanonicalScheme = (scheme) => {
+  if (!scheme) return null;
+  const byId = defaultSchemeById.get(String(scheme?.id || ""));
+  if (byId) return byId;
+  return defaultSchemeByName.get(normalizeText(scheme?.name)) || null;
+};
 
 const normalizeScheme = (scheme, index) => {
+  const canonical = getCanonicalScheme(scheme);
+  const applyLink = scheme?.applyLink
+    || scheme?.officialLink
+    || scheme?.portalUrl
+    || canonical?.applyLink
+    || canonical?.officialLink
+    || canonical?.portalUrl
+    || "";
+  const officialLink = scheme?.officialLink
+    || scheme?.applyLink
+    || scheme?.portalUrl
+    || canonical?.officialLink
+    || canonical?.applyLink
+    || canonical?.portalUrl
+    || "";
+  const portalUrl = scheme?.portalUrl || applyLink || officialLink || "";
+
   if (typeof scheme === "string") {
     return {
       id: `legacy-${index}-${Date.now()}`,
@@ -18,7 +50,9 @@ const normalizeScheme = (scheme, index) => {
       ministry: "",
       benefit: "",
       description: "",
-      portalUrl: "",
+      applyLink,
+      officialLink,
+      portalUrl,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -26,7 +60,7 @@ const normalizeScheme = (scheme, index) => {
 
   return {
     id: scheme?.id ?? `scheme-${index}-${Date.now()}`,
-    name: scheme?.name || "",
+    name: scheme?.name || canonical?.name || "",
     category: scheme?.category || "General",
     occupation: Array.isArray(scheme?.occupation) ? scheme.occupation : ["any"],
     states: Array.isArray(scheme?.states) ? scheme.states : ["all"],
@@ -38,7 +72,9 @@ const normalizeScheme = (scheme, index) => {
     ministry: scheme?.ministry || "",
     benefit: scheme?.benefit || "",
     description: scheme?.description || "",
-    portalUrl: scheme?.portalUrl || "",
+    applyLink,
+    officialLink,
+    portalUrl,
     createdAt: scheme?.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };

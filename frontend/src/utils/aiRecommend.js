@@ -1,6 +1,12 @@
 import { schemes as defaultSchemes } from "data/schemes";
 
 const normalizeText = (value) => String(value || "").trim().toLowerCase();
+const defaultSchemeById = new Map(
+  (defaultSchemes || []).map((scheme) => [String(scheme?.id || ""), scheme])
+);
+const defaultSchemeByName = new Map(
+  (defaultSchemes || []).map((scheme) => [normalizeText(scheme?.name), scheme])
+);
 
 const parseIncome = (value) => {
   const numeric = Number(value);
@@ -27,21 +33,50 @@ const parseAge = (value) => {
   return null;
 };
 
+const normalizeSchemeCandidate = (scheme) => {
+  const canonical = defaultSchemeById.get(String(scheme?.id || ""))
+    || defaultSchemeByName.get(normalizeText(scheme?.name))
+    || null;
+  const applyLink = scheme?.applyLink
+    || scheme?.officialLink
+    || scheme?.portalUrl
+    || canonical?.applyLink
+    || canonical?.officialLink
+    || canonical?.portalUrl
+    || "";
+  const officialLink = scheme?.officialLink
+    || scheme?.applyLink
+    || scheme?.portalUrl
+    || canonical?.officialLink
+    || canonical?.applyLink
+    || canonical?.portalUrl
+    || "";
+  const portalUrl = scheme?.portalUrl || applyLink || officialLink || "";
+
+  return {
+    ...scheme,
+    occupation: Array.isArray(scheme?.occupation) && scheme.occupation.length > 0 ? scheme.occupation : ["any"],
+    states: Array.isArray(scheme?.states) && scheme.states.length > 0 ? scheme.states : ["all"],
+    incomeLimit: Number(scheme?.incomeLimit || scheme?.maxIncome || 1000000),
+    minAge: Number(scheme?.minAge || 0),
+    gender: scheme?.gender || "any",
+    requiresLandOwnership: Boolean(scheme?.requiresLandOwnership),
+    requiresStudent: Boolean(scheme?.requiresStudent),
+    benefit: scheme?.benefit || scheme?.description || "",
+    description: scheme?.description || scheme?.benefit || "",
+    applyLink,
+    officialLink,
+    portalUrl,
+  };
+};
+
 const getSchemeDatabase = () => {
   const stored = JSON.parse(localStorage.getItem("schemes") || "[]");
   if (Array.isArray(stored) && stored.length > 0) {
-    return stored.map((scheme) => ({
-      ...scheme,
-      occupation: Array.isArray(scheme?.occupation) ? scheme.occupation : ["any"],
-      states: Array.isArray(scheme?.states) ? scheme.states : ["all"],
-      incomeLimit: Number(scheme?.incomeLimit || scheme?.maxIncome || 1000000),
-      minAge: Number(scheme?.minAge || 0),
-      gender: scheme?.gender || "any",
-      requiresLandOwnership: Boolean(scheme?.requiresLandOwnership),
-    }));
+    return stored.map((scheme) => normalizeSchemeCandidate(scheme));
   }
 
-  return defaultSchemes;
+  return (defaultSchemes || []).map((scheme) => normalizeSchemeCandidate(scheme));
 };
 
 const matchScheme = (scheme, profile) => {

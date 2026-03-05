@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { BrowserRouter, Routes as RouterRoutes, Route, Navigate } from "react-router-dom";
 
 import ScrollToTop from "./components/ScrollToTop";
@@ -22,6 +22,7 @@ import ManageSchemes from "./pages/admin/ManageSchemes";
 import ManageUsers from "./pages/admin/ManageUsers";
 import Analytics from "./pages/admin/Analytics";
 import { getCurrentUser, isAdminLoggedIn } from "./utils/auth";
+import ChatbotPanel from "components/chatbot/ChatbotPanel";
 
 const AdminProtectedRoute = ({ children }) => {
   const isAdmin = isAdminLoggedIn();
@@ -40,15 +41,11 @@ const LoginRoute = ({ children }) => {
 const Routes = () => {
   return (
     <BrowserRouter>
-
       <ErrorBoundary>
-
         <ScrollToTop />
 
         <RouterRoutes>
-
           {/* PUBLIC ROUTES */}
-
           <Route path="/" element={<HomePage />} />
           <Route path="/home-page" element={<Navigate to="/" replace />} />
 
@@ -62,6 +59,7 @@ const Routes = () => {
           />
 
           <Route path="/register" element={<Register />} />
+
           <Route
             path="/eligibility"
             element={
@@ -80,6 +78,7 @@ const Routes = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/quiz"
             element={
@@ -88,6 +87,7 @@ const Routes = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/quiz/result"
             element={
@@ -96,6 +96,7 @@ const Routes = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/schemes"
             element={
@@ -104,6 +105,7 @@ const Routes = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/scheme/:id"
             element={
@@ -112,6 +114,7 @@ const Routes = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/profile"
             element={
@@ -121,10 +124,7 @@ const Routes = () => {
             }
           />
 
-
-
           {/* ADMIN ROUTES */}
-
           <Route
             path="/admin"
             element={
@@ -183,16 +183,12 @@ const Routes = () => {
             }
           />
 
-
-
           {/* 404 */}
-
           <Route path="*" element={<NotFound />} />
-
         </RouterRoutes>
 
+        <ChatbotPanel />
       </ErrorBoundary>
-
     </BrowserRouter>
   );
 };

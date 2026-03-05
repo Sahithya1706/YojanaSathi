@@ -17,18 +17,12 @@ const SchemeDetailsPage = () => {
     () => location?.state?.scheme || getSchemeById(id),
     [id, location?.state?.scheme]
   );
+  const applyUrl = scheme?.applyLink || scheme?.officialLink || scheme?.portalUrl;
+  const officialUrl = scheme?.officialLink || scheme?.applyLink || scheme?.portalUrl;
 
   const handleLogout = () => {
     logout();
     navigate("/");
-  };
-
-  const handleApply = () => {
-    if (scheme?.portalUrl) {
-      window.open(scheme.portalUrl, "_blank", "noopener,noreferrer");
-      return;
-    }
-    setNotice("Visit your nearest CSC center to apply.");
   };
 
   const handleSaveScheme = () => {
@@ -50,6 +44,8 @@ const SchemeDetailsPage = () => {
         ministry: scheme.ministry,
         benefit: scheme.benefit,
         description: scheme.description,
+        applyLink: scheme.applyLink || scheme.portalUrl || "",
+        officialLink: scheme.officialLink || scheme.applyLink || scheme.portalUrl || "",
         portalUrl: scheme.portalUrl,
       },
       ...savedSchemes,
@@ -105,15 +101,15 @@ const SchemeDetailsPage = () => {
             </section>
 
             <section className="mb-6">
-              <h2 className="text-lg font-semibold mb-2">Apply Link</h2>
-              {scheme?.portalUrl ? (
+              <h2 className="text-lg font-semibold mb-2">Official Website</h2>
+              {officialUrl ? (
                 <a
-                  href={scheme.portalUrl}
+                  href={officialUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-blue-700 underline break-all"
                 >
-                  {scheme.portalUrl}
+                  {officialUrl}
                 </a>
               ) : (
                 <p className="text-sm text-slate-700">Official link currently unavailable.</p>
@@ -127,9 +123,28 @@ const SchemeDetailsPage = () => {
             )}
 
             <div className="flex flex-wrap gap-3">
-              <Button onClick={handleApply} iconName="ExternalLink" iconPosition="left">
-                Apply
-              </Button>
+              {applyUrl ? (
+                <Button asChild iconName="ExternalLink" iconPosition="left">
+                  <a href={applyUrl} target="_blank" rel="noopener noreferrer">
+                    Apply Now
+                  </a>
+                </Button>
+              ) : (
+                <Button iconName="ExternalLink" iconPosition="left" disabled>
+                  Application link not available
+                </Button>
+              )}
+              {officialUrl ? (
+                <Button variant="outline" asChild iconName="Globe" iconPosition="left">
+                  <a href={officialUrl} target="_blank" rel="noopener noreferrer">
+                    Visit Official Website
+                  </a>
+                </Button>
+              ) : (
+                <Button variant="outline" iconName="Globe" iconPosition="left" disabled>
+                  Website unavailable
+                </Button>
+              )}
               <Button onClick={handleSaveScheme} variant="outline" iconName="BookmarkPlus" iconPosition="left">
                 Save Scheme
               </Button>

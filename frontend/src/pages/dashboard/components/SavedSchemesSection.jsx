@@ -13,11 +13,11 @@ const categoryColors = {
 
 const SavedSchemesSection = ({ schemes, onViewDetails, onRemoveBookmark }) => {
   const handleApply = (scheme) => {
-    if (scheme?.portalUrl) {
-      window.open(scheme.portalUrl, "_blank", "noopener,noreferrer");
+    const applyUrl = scheme?.applyLink || scheme?.officialLink || scheme?.portalUrl;
+    if (applyUrl) {
+      window.open(applyUrl, "_blank", "noopener,noreferrer");
       return;
     }
-    window.alert("Visit your nearest CSC center to apply.");
   };
 
   if (!schemes || schemes?.length === 0) {
@@ -46,6 +46,7 @@ const SavedSchemesSection = ({ schemes, onViewDetails, onRemoveBookmark }) => {
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
       {schemes?.map((scheme) => {
         const colors = categoryColors?.[scheme?.category] || categoryColors?.["Employment"];
+        const applyUrl = scheme?.applyLink || scheme?.officialLink || scheme?.portalUrl;
         return (
           <div
             key={scheme?.id}
@@ -127,9 +128,10 @@ const SavedSchemesSection = ({ schemes, onViewDetails, onRemoveBookmark }) => {
                 iconName="ExternalLink"
                 iconPosition="left"
                 onClick={() => handleApply(scheme)}
+                disabled={!applyUrl}
                 className="flex-1"
               >
-                Apply
+                {applyUrl ? "Apply" : "Link Unavailable"}
               </Button>
             </div>
           </div>
