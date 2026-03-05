@@ -27,7 +27,7 @@ const ProfileSection = ({ user, onUpdateProfile }) => {
   }, [user]);
 
   const handleChange = (field) => (e) => {
-    setFormData((prev) => ({ ...prev, [field]: e?.target?.value }));
+    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
   };
 
   const handleSave = () => {

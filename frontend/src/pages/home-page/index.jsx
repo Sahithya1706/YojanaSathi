@@ -29,7 +29,7 @@ const HomePage = () => {
     navigate("/");
   };
 
-  const isLoggedIn = Boolean(storedUser);
+  const isLoggedIn = storedUser !== null;
 
   const handleStartQuiz = () => navigate(isLoggedIn ? "/quiz" : "/register");
   const handleViewSchemes = () => navigate(isLoggedIn ? "/schemes" : "/register");

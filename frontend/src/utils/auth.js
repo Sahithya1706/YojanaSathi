@@ -45,9 +45,9 @@ export const getAdminSession = () => {
   }
 };
 
-export const isAdminLoggedIn = () => Boolean(getAdminSession());
+export const isAdminLoggedIn = () => getAdminSession() !== null;
 
-export const isUserLoggedIn = () => Boolean(getCurrentUser());
+export const isUserLoggedIn = () => getCurrentUser() !== null;
 
 export const isAuthenticated = () => isAdminLoggedIn() || isUserLoggedIn();
 

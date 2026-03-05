@@ -85,7 +85,7 @@ const Select = React.forwardRef(({
     };
 
     const handleSearchChange = (e) => {
-        setSearchTerm(e?.target?.value);
+        setSearchTerm(e.target.value);
     };
 
     const isSelected = (optionValue) => {

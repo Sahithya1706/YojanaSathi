@@ -1420,7 +1420,7 @@ const AdminDashboard = () => {
               <input
                 type="checkbox"
                 name="twoFactorRequired"
-                checked={Boolean(integrationSettings.twoFactorRequired)}
+                checked={integrationSettings.twoFactorRequired}
                 onChange={handleIntegrationInputChange}
               />
               2FA required
@@ -1429,7 +1429,7 @@ const AdminDashboard = () => {
               <input
                 type="checkbox"
                 name="auditLogsEnabled"
-                checked={Boolean(integrationSettings.auditLogsEnabled)}
+                checked={integrationSettings.auditLogsEnabled}
                 onChange={handleIntegrationInputChange}
               />
               Audit logs enabled
@@ -1438,7 +1438,7 @@ const AdminDashboard = () => {
               <input
                 type="checkbox"
                 name="piiMasked"
-                checked={Boolean(integrationSettings.piiMasked)}
+                checked={integrationSettings.piiMasked}
                 onChange={handleIntegrationInputChange}
               />
               User PII masked

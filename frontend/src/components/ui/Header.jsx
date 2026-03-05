@@ -27,7 +27,7 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
 
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if (profileRef?.current && !profileRef?.current?.contains(e?.target)) {
+            if (profileRef?.current && !profileRef?.current?.contains(e.target)) {
                 setProfileOpen(false);
             }
         };

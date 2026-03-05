@@ -188,7 +188,7 @@ const QuizResultPage = () => {
             {explainedRecommendations.map((scheme, index) => {
               const applyUrl = scheme?.applyLink || scheme?.officialLink || scheme?.portalUrl;
               const schemeKey = String(scheme?.id || scheme?.name || `scheme-${index}`);
-              const isExpanded = Boolean(expandedExplainers[schemeKey]);
+              const isExpanded = expandedExplainers[schemeKey] || false;
 
               return (
                 <div key={schemeKey} className="rounded-lg border p-4 bg-slate-50">

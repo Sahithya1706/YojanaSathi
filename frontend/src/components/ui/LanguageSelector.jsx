@@ -15,7 +15,7 @@ const LanguageSelector = ({ currentLang = 'en', onLanguageChange }) => {
 
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (containerRef?.current && !containerRef?.current?.contains(e?.target)) {
+      if (containerRef?.current && !containerRef?.current?.contains(e.target)) {
         setIsOpen(false);
       }
     };
