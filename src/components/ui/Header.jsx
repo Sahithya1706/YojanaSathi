@@ -229,7 +229,7 @@ const Header = ({ isAuthenticated = false, user = null, onLogout }) => {
                             </div>
                         ) : (
                             <div className="hidden lg:flex items-center gap-2">
-                                <Link to="/register" className="auth-login-btn" aria-label="Login to your account">
+                                <Link to="/login" className="auth-login-btn" aria-label="Login to your account">
                                     <Icon name="LogIn" size={16} />
                                     Login
                                 </Link>

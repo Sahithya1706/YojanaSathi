@@ -143,16 +143,26 @@ const RegistrationForm = () => {
       setIsLoading(false);
 
       const userData = {
+        id: Date.now(),
         name: formData.fullName,
         email: formData.email,
         phone: formData.phone,
         age: formData.age,
         occupation: formData.occupation,
         category: formData.category,
-        state: formData.state
+        state: formData.state,
+        registeredAt: new Date().toLocaleString()
       };
 
+      // current logged user
       localStorage.setItem("user", JSON.stringify(userData));
+
+      // users list for admin
+      const existingUsers = JSON.parse(localStorage.getItem("users")) || [];
+
+      existingUsers.push(userData);
+
+      localStorage.setItem("users", JSON.stringify(existingUsers));
 
       setRegistrationSuccess(true);
 
@@ -241,7 +251,7 @@ const RegistrationForm = () => {
               <label
                 key={g}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer transition-all text-sm font-medium select-none ${formData?.gender === g?.toLowerCase()
-                    ? "border-blue-700 bg-blue-50 text-blue-800" : "border-gray-200 bg-white text-gray-700 hover:border-blue-400"
+                  ? "border-blue-700 bg-blue-50 text-blue-800" : "border-gray-200 bg-white text-gray-700 hover:border-blue-400"
                   }`}
                 style={{ minHeight: "44px" }}
               >
@@ -455,7 +465,7 @@ const RegistrationForm = () => {
             />
             <div
               className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${formData?.termsAccepted
-                  ? "bg-blue-800 border-blue-800" : "bg-white border-gray-400 group-hover:border-blue-600"
+                ? "bg-blue-800 border-blue-800" : "bg-white border-gray-400 group-hover:border-blue-600"
                 }`}
             >
               {formData?.termsAccepted && <Icon name="Check" size={12} color="#fff" strokeWidth={3} />}
